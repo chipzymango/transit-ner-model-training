@@ -9,8 +9,8 @@ def preprocess_text(text):
         text = text.replace("?", "")
     return text
 
-def generate_labeled_dataset(stop_places_path='dumps/stop_places.json', route_numbers_path='dumps/route_numbers.json', route_names_path='dumps/route_names.json', num_sentences=1500):
-    # training data    
+def generate_labeled_dataset(stop_places_path='dumps/stop_places.json', route_numbers_path='dumps/route_numbers.json', route_names_path='dumps/route_names.json', num_sentences=2500):
+    # loading training data    
     with open(stop_places_path, encoding='utf-8') as file:
         stop_places = json.load(file)
     with open(route_numbers_path, encoding='utf-8') as file:
@@ -101,18 +101,26 @@ def generate_labeled_dataset(stop_places_path='dumps/stop_places.json', route_nu
         "Jeg skal ta {route_number} når stopper den på {stop_place}",
         "Når skal {route_name} være på {stop_place}",
         "Når kommer {route_name} bussen ved {stop_place}",
-        "Når stopper {route_number} på {stop_place}?",
+        "Når stopper {route_number} på {stop_place}",
         "Når ankommer {route_name} {stop_place}",
         "Når er {route_name} forventet å være på {stop_place}",
         "Når går {route_number} til {stop_place}",
         "Når er {route_name} planlagt å komme til {stop_place}",
         "Når er {route_number} ved {stop_place}",
         "Jeg sitter på {stop_place} og skal ta bussen som kjører til {route_name}",
-        "Jeg står på {stop_place} og skal ta {route_number} bussen"
+        "Jeg står på {stop_place} og skal ta {route_number} bussen",
+        "Jeg skal ta bussen som stopper på {stop_place}",
+        "Ønsker å vite når {route_number} t-banen ankommer på {stop_place}",
+        "{stop_place} {route_number} {route_name}",
+        "jeg skal ta den bussen som kommer mot {stop_place}",
+        "jeg er på busstasjonen på {stop_place} og lurer på når {route_number} bussen kommer",
+        "når kommer {route_number} på t-banestasjonen i {stop_place}",
+        "Når ankommer {route_number} {route_name} {stop_place}"
     ]
 
     amount=0
 
+    # make x amount of example sentences consisting of randomly chosen route numbers, names and stop places
     for _ in range(num_sentences):
         stop_place = random.choice(stop_places)
         route_number = random.choice(route_numbers).lower()
@@ -126,6 +134,7 @@ def generate_labeled_dataset(stop_places_path='dumps/stop_places.json', route_nu
         stop_place_words = preprocess_text(stop_place['name']).split() # ensure lowercase and that it recognizes stop place names with whitespace like "Lørenskog Stasjon"
         route_name_words = preprocess_text(route_name).split()
 
+        # for each word in the example sentence, assign labels to the words
         for word in sentence.split():
             if word in route_number:
                 labeled_sentence.append((word, 'B-ROUTENUMBER'))
