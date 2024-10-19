@@ -1,3 +1,4 @@
+# The model files are required for this file
 from transformers import BertTokenizerFast, BertForTokenClassification
 
 model = BertForTokenClassification.from_pretrained("../model")
